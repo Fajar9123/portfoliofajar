@@ -1,29 +1,36 @@
 <?php
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Mengambil data dari formulir dan melakukan sanitasi
-    $name = htmlspecialchars(trim($_POST['name']));
-    $email = htmlspecialchars(trim($_POST['email']));
-    $subject = htmlspecialchars(trim($_POST['subject']));
-    $message = htmlspecialchars(trim($_POST['message']));
+// Set email penerima
+$receiving_email_address = 'mfajarudin.12@gamil.com'; // Ganti dengan email tujuan Anda
 
-    $to = 'mfajarudin.12@gmail.com'; // Ganti dengan alamat email Anda
-    $headers = "From: $email\r\n";
-    $headers .= "Reply-To: $email\r\n";
-    $headers .= "MIME-Version: 1.0\r\n";
-    $headers .= "Content-Type: text/plain; charset=UTF-8\r\n"; // Tambahkan header Content-Type
+// Jika Anda ingin menggunakan library PHP-Email-Form, pastikan Anda telah menginstalnya dan mengimpornya di sini.
+// Contoh: require_once 'php-email-form/php-email-form.php';
 
-    // Menggabungkan informasi ke dalam isi email
-    $body = "Nama: $name\n";
-    $body .= "Email: $email\n\n";
-    $body .= "Pesan:\n$message\n";
+// Data form
+$name = $_POST['name'];
+$email = $_POST['email'];
+$subject = $_POST['subject'];
+$message = $_POST['message'];
 
-    // Mengirim email
-    if (mail($to, $subject, $body, $headers)) {
-        echo "<div class='sent-message'>Pesan Anda telah terkirim. Terima kasih!</div>";
-    } else {
-        echo "<div class='error-message'>Terjadi kesalahan saat mengirim pesan.</div>";
-    }
+// Siapkan email
+$to = $receiving_email_address;
+$email_subject = "Pesan dari Form Kontak: " . $subject;
+$email_body = "Anda menerima pesan baru dari form kontak di website Anda.\n\n" .
+              "Berikut detailnya:\n\n" .
+              "Nama: " . $name . "\n" .
+              "Email: " . $email . "\n" .
+              "Subjek: " . $subject . "\n" .
+              "Pesan:\n" . $message;
+
+$headers = "From: " . $name . " <" . $email . ">\r\n";
+$headers .= "Reply-To: " . $email . "\r\n";
+$headers .= "Content-type: text/plain; charset=UTF-8\r\n";
+
+// Kirim email
+if (mail($to, $email_subject, $email_body, $headers)) {
+    // Berhasil
+    echo json_encode(['success' => 'true', 'message' => 'Pesan Anda telah terkirim. Terima kasih!']);
 } else {
-    echo "<div class='error-message'>Metode pengiriman tidak valid.</div>";
+    // Gagal
+    echo json_encode(['success' => 'false', 'message' => 'Terjadi kesalahan saat mengirim pesan.']);
 }
 ?>
